@@ -15,7 +15,7 @@ class CreateApnsMessagesTable extends Migration {
 		Schema::create('apns_messages', function($table)
 		{
 			$table->increments('pid');
-			$table->string('clientid', 64);
+			$table->string('clientid', 64)->nullable();
 			$table->integer('fk_device');
 			$table->string('message');
 			$table->dateTime('delivery');
@@ -26,7 +26,7 @@ class CreateApnsMessagesTable extends Migration {
 
 			$table->timestamps();
 
-			$table->index('clientid')->nullable();
+			$table->index('clientid');
 			$table->index('fk_device');
 			$table->index('status');
 			$table->index('created_at');

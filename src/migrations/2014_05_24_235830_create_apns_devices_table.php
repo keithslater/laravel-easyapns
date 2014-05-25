@@ -16,7 +16,7 @@ class CreateApnsDevicesTable extends Migration {
 		Schema::create('apns_devices', function($table)
 		{
 			$table->increments('pid');
-			$table->string('clientid', 64);
+			$table->string('clientid', 64)->nullable();
 			$table->string('appname');
 			$table->string('appversion', 25)->nullable();
 			$table->char('deviceuid', 40);
@@ -49,7 +49,7 @@ class CreateApnsDevicesTable extends Migration {
 
 			$table->unique(array('appname', 'deviceuid'));
 			$table->unique(array('appname', 'devicetoken'));
-			$table->index('clientid')->nullable();
+			$table->index('clientid');
 			$table->index('devicetoken');
 			$table->index('devicename');
 			$table->index('devicemodel');

@@ -15,7 +15,7 @@ class CreateApnsDeviceHistoryTable extends Migration {
 		Schema::create('apns_device_history', function($table)
 		{
 			$table->increments('pid');
-			$table->string('clientid', 64);
+			$table->string('clientid', 64)->nullable();
 			$table->string('appname');
 			$table->string('appversion', 25)->nullable();
 			$table->char('deviceuid', 40);
@@ -45,7 +45,7 @@ class CreateApnsDeviceHistoryTable extends Migration {
 			))->default('active');
 			$table->dateTime('archived');
 
-			$table->index('clientid')->nullable();
+			$table->index('clientid');
 			$table->index('devicetoken');
 			$table->index('devicename');
 			$table->index('devicemodel');
