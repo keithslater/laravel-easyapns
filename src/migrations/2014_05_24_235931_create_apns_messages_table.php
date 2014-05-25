@@ -26,7 +26,7 @@ class CreateApnsMessagesTable extends Migration {
 
 			$table->timestamps();
 
-			$table->index('clientid');
+			$table->index('clientid')->nullable();
 			$table->index('fk_device');
 			$table->index('status');
 			$table->index('created_at');

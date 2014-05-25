@@ -45,7 +45,7 @@ class CreateApnsDeviceHistoryTable extends Migration {
 			))->default('active');
 			$table->dateTime('archived');
 
-			$table->index('clientid');
+			$table->index('clientid')->nullable();
 			$table->index('devicetoken');
 			$table->index('devicename');
 			$table->index('devicemodel');

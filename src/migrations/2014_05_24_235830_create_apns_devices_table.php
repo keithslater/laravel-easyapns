@@ -49,7 +49,7 @@ class CreateApnsDevicesTable extends Migration {
 
 			$table->unique(array('appname', 'deviceuid'));
 			$table->unique(array('appname', 'devicetoken'));
-			$table->index('clientid');
+			$table->index('clientid')->nullable();
 			$table->index('devicetoken');
 			$table->index('devicename');
 			$table->index('devicemodel');
