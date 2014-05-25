@@ -285,7 +285,7 @@ class Easyapns {
 	private function _fetchMessages(){
 		// only send one message per user... oldest message first
 		$messages = ApnsMessages::leftJoin('apns_devices', function($join){
-				$join->on('apns_devices.pid', '=', 'apns_messages.fk_device')->on('apns_devices.clientid', '=', 'apns_messages.clientid');
+				$join->on('apns_devices.pid', '=', 'apns_messages.fk_device');
 			})
 			->where('apns_messages.status', '=', 'queued')
 			->where('apns_messages.delivery', '<=', 'NOW()')
@@ -308,7 +308,7 @@ class Easyapns {
 	private function _flushMessages(){
 		// only send one message per user... oldest message first
 		$messages = ApnsMessages::leftJoin('apns_devices', function($join){
-			$join->on('apns_devices.pid', '=', 'apns_messages.fk_device')->on('apns_devices.clientid', '=', 'apns_messages.clientid');
+			$join->on('apns_devices.pid', '=', 'apns_messages.fk_device');
 		})
 			->where('apns_messages.status', '=', 'queued')
 			->where('apns_messages.delivery', '<=', 'NOW()')
@@ -331,7 +331,7 @@ class Easyapns {
 	 */
 	private function _iterateMessages($messages) {
 
-		if (!is_null($messages)) {
+		if (count($messages) > 0) {
 			foreach ($messages as $row) {
 				$pid = $row->pid;
 				$message = $row->message;
@@ -687,71 +687,75 @@ class Easyapns {
 		// fetch the users id and check to make sure they have certain notifications enabled before trying to send anything to them.
 		$devices = ApnsDevices::whereIn('pid', $list)->where('status', '=', 'active')->where('clientid', '=', $clientId)->get();
 
-		if (is_null($devices))
-			$this->_triggerError('This user does not exist in the database. Message will not be delivered.');
-
-		foreach ($devices as $device)
+		if (count($devices) == 0)
 		{
-			$deliver = true;
+			$this->_triggerError('This user does not exist in the database. Message will not be delivered.');
+		}
+		else
+		{
+			foreach ($devices as $device)
+			{
+				$deliver = true;
 
-			// Device id.
-			$deviceid = $device->pid;
-			// Get the push settings.
-			$pushbadge = $device->pushbadge;
-			$pushalert = $device->pushalert;
-			$pushsound = $device->pushsound;
+				// Device id.
+				$deviceid = $device->pid;
+				// Get the push settings.
+				$pushbadge = $device->pushbadge;
+				$pushalert = $device->pushalert;
+				$pushsound = $device->pushsound;
 
-			// has user disabled messages?
-			if($pushbadge=='disabled' && $pushalert=='disabled' && $pushsound=='disabled')
-				$deliver = false;
+				// has user disabled messages?
+				if($pushbadge=='disabled' && $pushalert=='disabled' && $pushsound=='disabled')
+					$deliver = false;
 
-			if($deliver===false && !is_null($devices)) {
-				$this->_triggerError('This user has disabled all push notifications. Message will not be delivered.');
-			}
-			else if($deliver===true) {
-				// make temp copy of message so we can cut out stuff this user may not get
-				$usermessage = $this->message;
-
-				// only send badge if user will get it
-				if($pushbadge=='disabled'){
-					$this->_triggerError('This user has disabled Push Badge Notifications, Badge will not be delivered.');
-					unset($usermessage['aps']['badge']);
+				if($deliver===false && !is_null($devices)) {
+					$this->_triggerError('This user has disabled all push notifications. Message will not be delivered.');
 				}
+				else if($deliver===true) {
+					// make temp copy of message so we can cut out stuff this user may not get
+					$usermessage = $this->message;
 
-				// only send alert if user will get it
-				if($pushalert=='disabled'){
-					$this->_triggerError('This user has disabled Push Alert Notifications, Alert will not be delivered.');
-					unset($usermessage['aps']['alert']);
+					// only send badge if user will get it
+					if($pushbadge=='disabled'){
+						$this->_triggerError('This user has disabled Push Badge Notifications, Badge will not be delivered.');
+						unset($usermessage['aps']['badge']);
+					}
+
+					// only send alert if user will get it
+					if($pushalert=='disabled'){
+						$this->_triggerError('This user has disabled Push Alert Notifications, Alert will not be delivered.');
+						unset($usermessage['aps']['alert']);
+					}
+
+					// only send sound if user will get it
+					if($pushsound=='disabled'){
+						$this->_triggerError('This user has disabled Push Sound Notifications, Sound will not be delivered.');
+						unset($usermessage['aps']['sound']);
+					}
+
+					if(is_null($usermessage['aps']['clientid'])) {
+						unset($usermessage['aps']['clientid']);
+					}
+
+					if(empty($usermessage['aps'])) {
+						unset($usermessage['aps']);
+					}
+
+					$fk_device = $deviceid;
+					$message = json_encode($usermessage);
+
+					$delivery = (!empty($when)) ? $when: date('Y-m-d H:i:s');
+
+					$apns_messages = new ApnsMessages();
+					$apns_messages->clientid = $clientId;
+					$apns_messages->fk_device = $fk_device;
+					$apns_messages->message = $message;
+					$apns_messages->delivery = $delivery;
+					$apns_messages->status = 'queued';
+					$apns_messages->save();
+
+					unset($usermessage);
 				}
-
-				// only send sound if user will get it
-				if($pushsound=='disabled'){
-					$this->_triggerError('This user has disabled Push Sound Notifications, Sound will not be delivered.');
-					unset($usermessage['aps']['sound']);
-				}
-
-				if(is_null($usermessage['aps']['clientid'])) {
-					unset($usermessage['aps']['clientid']);
-				}
-
-				if(empty($usermessage['aps'])) {
-					unset($usermessage['aps']);
-				}
-
-				$fk_device = $deviceid;
-				$message = json_encode($usermessage);
-
-				$delivery = (!empty($when)) ? $when: date('Y-m-d H:i:s');
-
-				$apns_messages = new ApnsMessages();
-				$apns_messages->clientid = $clientId;
-				$apns_messages->fk_device = $fk_device;
-				$apns_messages->message = $message;
-				$apns_messages->delivery = $delivery;
-				$apns_messages->status = 'queued';
-				$apns_messages->save();
-
-				unset($usermessage);
 			}
 		}
 		unset($this->message);
