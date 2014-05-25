@@ -534,7 +534,7 @@ class Easyapns {
 	 * @access private
 	 */
 	private function _pushSuccess($pid){
-		$message = ApnsMessages::find($pid)->first();
+		$message = ApnsMessages::find($pid);
 		$message->status = 'delivered';
 		$message->save();
 	}
@@ -548,7 +548,7 @@ class Easyapns {
 	 * @access private
 	 */
 	private function _pushFailed($pid){
-		$message = ApnsMessages::find($pid)->first();
+		$message = ApnsMessages::find($pid);
 		$message->status = 'failed';
 		$message->save();
 	}
