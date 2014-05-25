@@ -3,6 +3,7 @@
 use Config;
 use Keithslater\Easyapns\Models\ApnsDevices;
 use Keithslater\Easyapns\Models\ApnsMessages;
+use Log;
 
 class Easyapns {
 
@@ -28,31 +29,6 @@ class Easyapns {
 	 * @access private
 	 */
 	private $showErrors;
-
-	/**
-	 * Whether APNS should log errors
-	 *
-	 * @var bool
-	 * @access private
-	 */
-	private $logErrors;
-
-	/**
-	 * Log path for APNS errors
-	 *
-	 * @var string
-	 * @access private
-	 */
-	private $logPath = '/usr/local/apns/apns.log';
-
-	/**
-	 * Max files size of log before it is truncated. 1048576 = 1MB.  Added incase you do not add to a log
-	 * rotator so this script will not accidently make gigs of error logs if there are issues with install
-	 *
-	 * @var int
-	 * @access private
-	 */
-	private $logMaxSize = 1048576; // max log size before it is truncated
 
 	/**
 	 * Absolute path to your Production Certificate
@@ -586,25 +562,9 @@ class Easyapns {
 	 * @access public
 	 */
 	function _triggerError($error, $type=E_USER_NOTICE){
-		$backtrace = debug_backtrace();
-		$backtrace = array_reverse($backtrace);
-		$error .= "\n";
-		$i=1;
 
-		foreach($backtrace as $errorcode){
-			if (isset($errorcode['class'])) {
-				$file = ($errorcode['file']!='') ? "-> File: ".basename($errorcode['file'])." (line ".$errorcode['line'].")":"";
-				$error .= "\n\t".$i.") ".$errorcode['class']."::".$errorcode['function']." {$file}";
-			}
-			$i++;
-		}
-		$error .= "\n\n";
-		if($this->logErrors && file_exists($this->logPath)){
-			if(filesize($this->logPath) > $this->logMaxSize) $fh = fopen($this->logPath, 'w');
-			else $fh = fopen($this->logPath, 'a');
-			fwrite($fh, $error);
-			fclose($fh);
-		}
+		Log::error($error);
+
 		if($this->showErrors) trigger_error($error, $type);
 	}
 
