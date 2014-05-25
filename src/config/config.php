@@ -11,5 +11,5 @@ return array(
 	'sandboxCertificate' => 'apns-dev.pem',
 	'sandboxCertificatePassphrase' => '',
 	'sandboxAPNSGateway' => 'ssl://gateway.sandbox.push.apple.com:2195',
-	'sandboxFeedbackService' => 'ssl://feedback.sandbox.push.apple.com:219'
+	'sandboxFeedbackService' => 'ssl://feedback.sandbox.push.apple.com:2196'
 );

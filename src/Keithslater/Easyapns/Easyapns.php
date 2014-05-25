@@ -597,7 +597,7 @@ class Easyapns {
 	public function newMessage($fk_device=NULL, $delivery=NULL, $clientId=NULL){
 		if(isset($this->message)){
 			unset($this->message);
-			$this->_triggerError('An existring message already created but not delivered. The previous message has been removed. Use queueMessage() to complete a message.');
+			$this->_triggerError('An existing message already created but not delivered. The previous message has been removed. Use queueMessage() to complete a message.');
 		}
 
 		// If no device is specified then that means we sending a message to all.
