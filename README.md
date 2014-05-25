@@ -33,7 +33,7 @@ This command copies the config file to app/config/packages/keithslater/easyapns/
 
     $ php artisan config:publish keithslater/easyapns
 
-Upload your development and production .pem files to app/config/packages/keithslater/easyapns/
+Upload your development and production .pem files to app/config/packages/keithslater/easyapns/. If you need to convert your certificates to pem certificate files, I recommend following [this answer](http://stackoverflow.com/questions/1762555/creating-pem-file-for-apns) on Stackoverflow.
 
 Modify app/config/packages/keithslater/easyapns/config.php as needed
 
@@ -68,3 +68,15 @@ $apns->processQueue();
 ```
 
 Refer to [Easy APNS](http://www.easyapns.com/) for more information.
+
+### Responding to the Apple Delegate methods
+
+I recommend setting up a route named something similar to apns. From that route call Easyapns with all input requests. Something similar to this example:
+
+```php
+Route::get('apns', function() {
+        $apns = new Easyapns(Input::all());
+});
+```
+
+These few lines of code will respond to the delegate method from your app and add the new device to the database. Just change the host and urlString strings in the app delegate methods to point here.
