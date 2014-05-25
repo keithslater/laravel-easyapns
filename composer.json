@@ -1,0 +1,24 @@
+{
+    "name": "keithslater/easyapns",
+    "description": "Easy APNS for Laravel. Easy APNS is an Apple Push Notification Service using PHP & MySQL",
+    "keywords": ["laravel", "apns", "apple", "ios", "easyapns", "easy apns", "push notifications", "push", "iphone", "ipad"],
+    "authors": [
+        {
+            "name": "Keith Slater",
+            "email": "keith@keithslater.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.1.*"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-0": {
+            "Keithslater\\Easyapns\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
