@@ -284,7 +284,8 @@ class Easyapns {
 	 */
 	private function _fetchMessages(){
 		// only send one message per user... oldest message first
-		$messages = ApnsMessages::leftJoin('apns_devices', function($join){
+		$messages = ApnsMessages::select('apns_messages.pid, message, devicetoken, development')
+			->leftJoin('apns_devices', function($join){
 				$join->on('apns_devices.pid', '=', 'apns_messages.fk_device');
 			})
 			->where('apns_messages.status', '=', 'queued')
@@ -307,7 +308,8 @@ class Easyapns {
 	 */
 	private function _flushMessages(){
 		// only send one message per user... oldest message first
-		$messages = ApnsMessages::leftJoin('apns_devices', function($join){
+		$messages = ApnsMessages::select('apns_messages.pid, message, devicetoken, development')
+			->leftJoin('apns_devices', function($join){
 			$join->on('apns_devices.pid', '=', 'apns_messages.fk_device');
 		})
 			->where('apns_messages.status', '=', 'queued')
@@ -685,7 +687,7 @@ class Easyapns {
 			$this->_triggerError('No valid recipient was provided.');
 		// Get the devices.
 		// fetch the users id and check to make sure they have certain notifications enabled before trying to send anything to them.
-		$devices = ApnsDevices::whereIn('pid', $list)->where('status', '=', 'active')->where('clientid', '=', $clientId)->get();
+		$devices = ApnsDevices::whereIn('pid', $list)->where('status', '=', 'active')->get();
 
 		if (count($devices) == 0)
 		{
