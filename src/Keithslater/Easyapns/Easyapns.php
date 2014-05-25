@@ -284,7 +284,7 @@ class Easyapns {
 	 */
 	private function _fetchMessages(){
 		// only send one message per user... oldest message first
-		$messages = ApnsMessages::select(array('apns_messages.pid, message, devicetoken, development'))
+		$messages = ApnsMessages::select(array('apns_messages.pid', 'message', 'devicetoken', 'development'))
 			->leftJoin('apns_devices', function($join){
 				$join->on('apns_devices.pid', '=', 'apns_messages.fk_device');
 			})
@@ -308,7 +308,7 @@ class Easyapns {
 	 */
 	private function _flushMessages(){
 		// only send one message per user... oldest message first
-		$messages = ApnsMessages::select(array('apns_messages.pid, message, devicetoken, development'))
+		$messages = ApnsMessages::select(array('apns_messages.pid', 'message', 'devicetoken', 'development'))
 			->leftJoin('apns_devices', function($join){
 			$join->on('apns_devices.pid', '=', 'apns_messages.fk_device');
 		})
