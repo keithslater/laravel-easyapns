@@ -37,6 +37,18 @@ Upload your development and production .pem files to app/config/packages/keithsl
 
 Modify app/config/packages/keithslater/easyapns/config.php as needed
 
+## APNS command
+
+Finds messages in the database that are still queued and will push them. Sends only first message for device
+
+    $ php artisan apns fetch
+
+Similar to fetch but sends all messages for each device
+
+    $ php artisan apns flush
+
+You might want to set one of these commands as a cronjob
+
 ## Usage
 
 Add the following to the header where you are calling APNS

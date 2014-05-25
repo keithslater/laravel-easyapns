@@ -38,7 +38,7 @@ class ApnsCommand extends Command {
 	 */
 	public function fire()
 	{
-		new Easyapns($this->argument('task'));
+		new Easyapns(array('task' => $this->argument('task')));
 	}
 
 
